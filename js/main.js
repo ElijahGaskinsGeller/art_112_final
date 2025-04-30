@@ -62,6 +62,7 @@ camera.position.z = 5;
 
 let renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0xffffff);
 document.body.appendChild(renderer.domElement);
 
 let controls = new OrbitControls(camera, renderer.domElement);
@@ -69,15 +70,28 @@ let controls = new OrbitControls(camera, renderer.domElement);
 
 let cubes = [];
 let width = 100;
-let height = 100;
+let height = 75;
 
 for (let x = 0; x < width; x++) {
 	for (let y = 0; y < height; y++) {
-		let geometry = new THREE.BoxGeometry(.005, .005, .005);
-		let material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+		//let geometry = new THREE.BoxGeometry(.01, .01, .01);
+		let geometry = new THREE.BufferGeometry();
+		let vertOffset = [
+			THREE.MathUtils.randFloat(-.01, .01), THREE.MathUtils.randFloat(-.01, .01), THREE.MathUtils.randFloat(-.01, .01),
+			THREE.MathUtils.randFloat(-.01, .01), THREE.MathUtils.randFloat(-.01, .01), THREE.MathUtils.randFloat(-.01, .01),
+			THREE.MathUtils.randFloat(-.01, .01), THREE.MathUtils.randFloat(-.01, .01), THREE.MathUtils.randFloat(-.01, .01),
+		]
+		let vertices = new Float32Array([
+			-.005 + vertOffset[0], -.005 + vertOffset[1], .005 + vertOffset[2],
+			.005 + vertOffset[3], -.005 + vertOffset[4], .005 + vertOffset[5],
+			.005 + vertOffset[6], .005 + vertOffset[7], .005 + vertOffset[8],
+		]);
+		geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+		let material = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide });
 		let cube = new THREE.Mesh(geometry, material);
-		cube.position.x = x / width;
-		cube.position.y = y / height;
+		cube.position.x = x / 50;
+		cube.position.y = y / 75;
+		cube.rotation.z = THREE.MathUtils.randFloat(-Math.PI / 8, Math.PI / 8);
 		scene.add(cube);
 
 		if (cubes[x] === undefined) {
@@ -115,6 +129,7 @@ function animate(time) {
 
 		}
 	}
+
 
 	perlin.memory = {}
 
