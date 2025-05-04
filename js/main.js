@@ -67,12 +67,29 @@ document.body.appendChild(renderer.domElement);
 
 let controls = new OrbitControls(camera, renderer.domElement);
 
+let textureCount = 30;
 let textureLoader = new THREE.TextureLoader();
+let textures = [];
 //TODO: itterate through collection of images and then pick them at random when building polygons
-let testImg = textureLoader.load("./imgs/images.jpg", function(tex) {
-	//let testImg = textureLoader.load("./imgs/4chan_Card.png", function(tex) {
-	console.log(tex);
-});
+for (let i = 0; i < textureCount; i++) {
+
+	let texture = textureLoader.load("./imgs/" + i + ".jpg", function(tex) {
+
+		tex.colorSpace = THREE.SRGBColorSpace;
+		tex.flipY = true;
+
+
+	});
+
+	textures.push(texture);
+
+
+}
+
+//let testImg = textureLoader.load("./imgs/images.jpg", function(tex) {
+//	//let testImg = textureLoader.load("./imgs/4chan_Card.png", function(tex) {
+//	console.log(tex);
+//});
 
 
 let cubes = [];
@@ -133,7 +150,7 @@ for (let x = 0; x < width; x++) {
 
 		geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
 		geometry.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
-		let material = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, map: testImg });
+		let material = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, map: textures[THREE.MathUtils.randInt(0, textureCount - 1)] });
 		let cube = new THREE.Mesh(geometry, material);
 		cube.position.x = x / 50 - (width / 100);
 		cube.position.y = y / 75 - (height / 150);
