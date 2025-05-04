@@ -57,7 +57,7 @@ let scene = new THREE.Scene();
 
 let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 1000);
 
-camera.position.z = 5;
+camera.position.z = 1.5;
 
 
 let renderer = new THREE.WebGLRenderer();
@@ -66,6 +66,13 @@ renderer.setClearColor(0xffffff);
 document.body.appendChild(renderer.domElement);
 
 let controls = new OrbitControls(camera, renderer.domElement);
+
+let textureLoader = new THREE.TextureLoader();
+//TODO: itterate through collection of images and then pick them at random when building polygons
+let testImg = textureLoader.load("./imgs/images.jpg", function(tex) {
+	//let testImg = textureLoader.load("./imgs/4chan_Card.png", function(tex) {
+	console.log(tex);
+});
 
 
 let cubes = [];
@@ -82,15 +89,55 @@ for (let x = 0; x < width; x++) {
 			THREE.MathUtils.randFloat(-.01, .01), THREE.MathUtils.randFloat(-.01, .01), THREE.MathUtils.randFloat(-.01, .01),
 		]
 		let vertices = new Float32Array([
-			-.005 + vertOffset[0], -.005 + vertOffset[1], .005 + vertOffset[2],
-			.005 + vertOffset[3], -.005 + vertOffset[4], .005 + vertOffset[5],
-			.005 + vertOffset[6], .005 + vertOffset[7], .005 + vertOffset[8],
+			-.005 + vertOffset[0], -.005 + vertOffset[1], 0,
+			.005 + vertOffset[3], -.005 + vertOffset[4], 0,
+			.005 + vertOffset[6], .005 + vertOffset[7], 0,
 		]);
+
+
+		let uvs = new Float32Array([
+			vertices[0], vertices[1],
+			vertices[3], vertices[4],
+			vertices[6], vertices[7],
+		]);
+
+		let smallestUV = uvs[0];
+		let largestUV = uvs[0];
+		for (let i = 0; i < uvs.length; i++) {
+
+			if (uvs[i] < smallestUV) {
+				smallestUV = uvs[i];
+			}
+
+
+
+		}
+
+
+		for (let i = 0; i < uvs.length; i++) {
+
+			if (smallestUV < 0) {
+				uvs[i] -= smallestUV;
+			}
+
+			if (uvs[i] > largestUV) {
+				largestUV = uvs[i];
+			}
+
+		}
+
+		let scale = 1 / largestUV;
+		for (let i = 0; i < uvs.length; i++) {
+			uvs[i] *= scale;
+		}
+
 		geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
-		let material = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide });
+		geometry.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
+		let material = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, map: testImg });
 		let cube = new THREE.Mesh(geometry, material);
-		cube.position.x = x / 50;
-		cube.position.y = y / 75;
+		cube.position.x = x / 50 - (width / 100);
+		cube.position.y = y / 75 - (height / 150);
+		cube.rotation.y = THREE.MathUtils.randFloat(-Math.PI / 8, Math.PI / 8);
 		cube.rotation.z = THREE.MathUtils.randFloat(-Math.PI / 8, Math.PI / 8);
 		scene.add(cube);
 
@@ -100,6 +147,7 @@ for (let x = 0; x < width; x++) {
 		cubes[x].push(cube)
 	}
 }
+
 
 console.log(cubes)
 
